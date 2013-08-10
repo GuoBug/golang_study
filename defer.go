@@ -1,3 +1,5 @@
+/* defer 用来关闭文件什么的 */
+
 package main
 
 import(
