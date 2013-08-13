@@ -14,12 +14,12 @@ type small int
 func main() {
 	var a small
 	a = 0
-	(&a).Increate()
+	a.Increate(100)
 	fmt.Println(a)
 }
 
-func (a *small) Increate() {
-	for i:= 0;i < 100; i ++ {
+func (a *small) Increate(maxNum int ) {
+	for i:= 0;i < maxNum; i ++ {
 		*a++
 		fmt.Println(*a)
 	}
