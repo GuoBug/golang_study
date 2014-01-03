@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	nums := []int{23, 23, 19, 19, 1, 88, 88, 3, 3, 2, 56, 56}
+	nums := []int{23, 23, 19, 19, 12, 88, 88, 3, 3, 5, 56, 56}
 
 	//设两个不重复的数为a1和a2，x = a1 ^ a2，bits为a1和a2某个不一致的位
 	var a1, a2, x, bits int
@@ -33,7 +33,9 @@ func main() {
 
 	//舍去所有bits位为0的位，将剩下的数字全部异或，这样就能得出两个不重复的数字其中的一个
 	for _, v := range nums {
+		fmt.Printf("V  [%v],[%b]\n", v, v)
 		if v&bits != 0 {
+			fmt.Printf("a1: %b,%v  v:%b,%v\n", a1, a1, v, v)
 			a1 = a1 ^ v
 		}
 	}
@@ -41,5 +43,6 @@ func main() {
 	//根据x和a1可以很容易求出a2
 	a2 = x ^ a1
 
-	fmt.Println("Result : ", a1, a2)
+	fmt.Printf("Result : %v,%v\n", a1, a2)
+
 }
