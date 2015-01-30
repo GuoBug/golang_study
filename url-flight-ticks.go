@@ -77,7 +77,7 @@ func GetUrl(u string, s map[string]string) {
 	fmt.Println(urlmap.Path)
 
 	path := strings.Split(urlmap.Path, "/")
-	filename := path[1] + ".xml"
+	filename := path[1] 
 
 	fp, err := os.Create(filename)
 	if err != nil {
@@ -98,18 +98,60 @@ func GetUrl(u string, s map[string]string) {
 
 	fp.WriteString("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n")
 	fp.WriteString("\t<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"\n")
-	fp.WriteString("\txmlns:mobile=\"http://www.google.com/schemas/sitemap-mobile/1.0\">\n")
+	fp.WriteString("\txmlns:mobile=\"http://www.baidu.com/schemas/sitemap-mobile/1/\">\n")
 
 	for _, v := range v.Loc {
 		tempstring, _ := url.Parse(strings.Trim(v.Url, "\t"))
 
 		path := strings.Split(tempstring.Path, "/")
-		//fmt.Println(path)
+		fmt.Println(path[2])
 		//fmt.Println("SSSSSSSS" + v.Url)
 
-		sHtml := strings.Split(path[2], "-")
 
-		/* 详情页 */
+		//low price
+		//sHtml := strings.Split(path[2], "-")
+		//fmt.Println(len(sHtml[6]))
+
+		//inter_schedule_searchresult
+		//sHtmlInter := strings.Split(path[3], "-")
+		//fmt.Println(sHtmlInter)
+
+		/* Sitemap_schedule1*/
+		
+		fmt.Println("Sitemap_schedule1")
+		fp.WriteString("\t\t<url>\n\t\t\t<loc>")
+		fp.WriteString("http://m.ctrip.com/html5/Flight/schedule/" + path[2])
+		fp.WriteString("</loc>\n\t\t<mobile:mobile/>\n\t\t</url>\n")
+		
+		/*Sitemap_searchresult
+		fmt.Println("Sitemap_searchresult")
+		fp.WriteString("\t\t<url>\n\t\t\t<loc>")
+		fp.WriteString("http://m.ctrip.com/html5/Flight/" + path[2])
+		fp.WriteString("</loc>\n\t\t<mobile:mobile/>\n\t\t</url>\n")
+		*/
+
+		/* inter_schedule_searchresult 
+		if len(sHtmlInter[0]) == 3 {
+			fmt.Println("inter_schedule_searchresult")
+			fp.WriteString("\t\t<url>\n\t\t\t<loc>")
+			fp.WriteString("http://m.ctrip.com/html5/Flight/schedule/" + sHtmlInter[0] + "." + sHtmlInter[1])
+			fp.WriteString("</loc>\n\t\t<mobile:mobile/>\n\t\t</url>\n")
+		}
+		*/
+
+		
+		/* low price
+		if  len(sHtml[6]) == 3 && len(sHtml[7]) == 1 {
+			//lowprice
+			fmt.Println("In Lowprice")
+			fp.WriteString("\t\t<url>\n\t\t\t<loc>")
+			fp.WriteString("http://m.ctrip.com/html5/Flight/" + sHtml[1] + "-" +sHtml[2]+"-day-1.html")
+			fp.WriteString("</loc>\n\t\t<mobile:mobile/>\n\t\t</url>\n")
+		}
+		*/
+		//fmt.Println(sHtml[5])
+
+		/* 详情页 sitemap baidu 
 		if len(sHtml) == 4 {
 
 			fp.WriteString("\t\t<url>\n\t\t\t<loc>")
@@ -120,7 +162,7 @@ func GetUrl(u string, s map[string]string) {
 			fp.WriteString("http://m.ctrip.com/html5/Flight/" + sHtml[0] + "-" + sHtml[1] + "-d.html")
 			fp.WriteString("</loc>\n\t\t<mobile:mobile/>\n\t\t</url>\n")
 
-		}
+		}*/
 	}
 	fp.WriteString("</urlset>")
 
@@ -145,8 +187,16 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	GetUrl("http://flights.ctrip.com/dflights-sitemap.xml", header)
 
-	GetUrl("http://flights.ctrip.com/dflights-baidu.xml", header)
+	GetUrl("http://flights.ctrip.com/Sitemap_schedule1.xml", header)
+	//GetUrl("http://flights.ctrip.com/Sitemap_schedule1.xml", header)
+
+	//GetUrl("http://flights.ctrip.com/inter_schedule_searchresult.xml", header)
+
+	//GetUrl("http://flights.ctrip.com/Sitemap_lowprice.xml", header)
+
+	//GetUrl("http://flights.ctrip.com/dflights-sitemap.xml", header)
+
+	//GetUrl("http://flights.ctrip.com/dflights-baidu.xml", header)
 
 }
