@@ -4,10 +4,10 @@ import (
     "fmt"
     "strconv"
     "time"
-	"net/http"
-	"io/ioutil"
-	"net/url"
-	"github.com/bitly/go-simplejson"
+    "net/http"
+    "io/ioutil"
+    "net/url"
+    "github.com/bitly/go-simplejson"
 )
 
 /*
@@ -57,15 +57,11 @@ func GetSearchResult(keyword string, city string){
         }
         //fmt.Println(js)
 
-		var nodes = make(map[string]interface{})
-		nodes, _ = js.Map()
-		/*
-		for key,_ := range nodes {
-			fmt.Println(nodes[key])
-		}
-		*/
-		fmt.Printf("%#v\n",nodes["content"].Get("data"))
-
+        jobs,_ := js.Get("content").Get("data").Get("page").Get("result").Array()
+        jobCount,_ := js.Get("content").Get("data").Get("page").Get("pageSize").Int()
+        for n := 0 ; n < jobCount ; n ++{
+            fmt.Println(jobs[n])
+        }
     }
 
 }
