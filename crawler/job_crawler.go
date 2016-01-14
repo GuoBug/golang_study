@@ -7,7 +7,6 @@ import (
     "net/http"
     "io/ioutil"
     "io"
-    "errors"
     "strings"
     "net/url"
     "os"
@@ -32,24 +31,23 @@ func CheckFileIsExist(fileName string) (bool) {
     return exist;
 }
 
+func CreateFile(fileName string) {
+    fp, err := os.Create(fileName)
+    if err != nil {
+        panic(err)
+    }
+    defer fp.Close()
+}
+
 func RecordInfo(fileName string ,record string) {
 
-//检测，有则追加，没有则新建
-    fp := new(os.File)
-    var err error = errors.New("")
-    if CheckFileIsExist(fileName) == false {
-        fmt.Println("*************False****************")
-        fp, err = os.Create(fileName)
-        if err != nil {
-            panic(err)
-        }
-    }else{
-        fmt.Println("*************True****************")
-        fp, err = os.OpenFile(fileName, os.O_APPEND, 0666)
-        if err != nil {
-            panic(err)
-        }
+//有则追加
+    fmt.Printf("\n*************True****************\n")
+    fp, err := os.OpenFile(fileName, os.O_APPEND, 0666)
+    if err != nil {
+        panic(err)
     }
+    defer fp.Close()
 
     n, writeErr := io.WriteString(fp, record)
     if writeErr != nil {
@@ -79,6 +77,8 @@ func MyGetFunction(getUrl string ,)([]byte){
 }
 
 func GetSearchResult(keyword string ,city string ,jobsCount int){
+
+    fmt.Printf("\n*************************************************\n我开始了，W(￣_￣)W …………\n")
 //URL参数
     paramurl := "http://www.lagou.com/custom/search.json?"
     paramKey := "&positionName=" + keyword
@@ -87,7 +87,7 @@ func GetSearchResult(keyword string ,city string ,jobsCount int){
 
 //文件名相关
     strTime := time.Now().Format("2006-01-02")
-    fileName := paramKey +  strTime + ".csv"
+    fileName := keyword +  strTime + ".csv"
 
     pagesCount := jobsCount/15
     fmt.Println(pagesCount)
@@ -126,6 +126,7 @@ func GetSearchResult(keyword string ,city string ,jobsCount int){
 //开始写文件
             s := []string{string(jobName),string(jobCity),string(jobCreatTime),string(jobsalary),string(jobCompany)}
             RecordInfo(fileName,strings.Join(s, "\t"))
+            RecordInfo(fileName,"\n")
 //            fmt.Printf("%s\t%s\t%s\t%s\t%s\n",jobName,jobCity,jobCreatTime,jobsalary,jobCompany)
         }
 
@@ -133,6 +134,7 @@ func GetSearchResult(keyword string ,city string ,jobsCount int){
 }
 
 func GetPageNumber(keyword string ,city string ) (int){
+    fmt.Printf("\n***************\n我想知道一共有多少\n")
     paramurl := "http://www.lagou.com/custom/search.json?"
     paramKey := "&positionName=" + keyword
     paramCity := "&city=" + city
@@ -175,7 +177,7 @@ func main() {
     strTime := time.Now().Format("2006-01-02")
     fileName := jobName +  strTime + ".csv"
     //fmt.Printf("fileName:%s", fileName)
-    RecordInfo(fileName,"")
+    CreateFile(fileName)
 
     GetSearchResult(jobName , workCity ,jobNums)
 }
