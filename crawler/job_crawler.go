@@ -7,6 +7,7 @@ import (
     "net/http"
     "io/ioutil"
     "net/url"
+    "os"
     "github.com/bitly/go-simplejson"
 )
 
@@ -43,6 +44,8 @@ func GetSearchResult(keyword string, city string){
     paramCity := "&city=" + city
     paramPage := "pageNo="
 
+// 具体json
+    jobJson := simplejson.New()
 //打印验证URL
 //  url = url + paramPage + paramCity + paramKey
 //  fmt.Println(url)
@@ -57,15 +60,32 @@ func GetSearchResult(keyword string, city string){
         }
         //fmt.Println(js)
 
-        jobs,_ := js.Get("content").Get("data").Get("page").Get("result").Array()
-        jobCount,_ := js.Get("content").Get("data").Get("page").Get("pageSize").Int()
-        for n := 0 ; n < jobCount ; n ++{
-            fmt.Println(jobs[n])
-        }
-    }
+//取长度，并且取出内容
 
+        jobsCount,_ := js.Get("content").Get("data").Get("page").Get("pageSize").Int()
+
+        for count := 0 ; count < jobsCount ; count ++ {
+//            fmt.Println(js.Get("content").Get("data").Get("page").Get("result").GetIndex(i))
+//获取具体工作内容的json
+            jobJson = js.Get("content").Get("data").Get("page").Get("result").GetIndex(count)
+
+            jobName ,_ := jobJson.Get("positionName").Bytes()
+            jobCity ,_ := jobJson.Get("city").Bytes()
+            jobCreatTime ,_ := jobJson.Get("createTime").Bytes()
+            jobsalary ,_ := jobJson.Get("salary").Bytes()
+            jobCompany ,_ := jobJson.Get("companyName").Bytes()
+
+            fmt.Printf("%s\t%s\t%s\t%s\t%s\n",jobName,jobCity,jobCreatTime,jobsalary,jobCompany)
+        }
+
+    }
 }
 
 func main() {
-    GetSearchResult("python" ,"上海" )
+    jobNums ,err := strconv.Atoi(os.Args[1])   
+    if err != nil {
+        panic(err)
+    }
+    fmt.Printf("%#v\n",jobNums)
+    GetSearchResult("产品经理" ,"上海" )
 }
