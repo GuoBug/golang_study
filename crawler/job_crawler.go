@@ -78,7 +78,7 @@ func GetSearchResult(keyword string ,city string ,jobsCount int){
             jobDetail := crawlerlib.GetQuery(jobURL)
 
 //开始写文件
-            s := []string{string(jobName),string(jobID),string(jobCity),string(jobCreatTime),string(jobsalary),string(jobCompany),string(jobDetail)}
+            s := []string{string(jobName),strconv.Itoa(jobID),string(jobCity),string(jobCreatTime),string(jobsalary),string(jobCompany),string(jobDetail)}
             crawlerlib.RecordInfo(fileName,strings.Join(s, "\t"))
             crawlerlib.RecordInfo(fileName,"\n")
 //            fmt.Printf("%s\t%s\t%s\t%s\t%s\n",jobName,jobCity,jobCreatTime,jobsalary,jobCompany)
