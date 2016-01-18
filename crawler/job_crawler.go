@@ -1,15 +1,12 @@
 package main
 
 import (
-    "fmt"
+    "./crawlerlib"
     "strconv"
     "time"
-    "net/http"
-    "io/ioutil"
-    "io"
     "strings"
-    "net/url"
     "os"
+    "fmt"
     "github.com/bitly/go-simplejson"
 )
 
@@ -23,58 +20,6 @@ headers = [
     {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/44.0.2403.89 Chrome/44.0.2403.89 Safari/537.36'}
 ]
 */
-func CheckFileIsExist(fileName string) (bool) {
-    var exist = true;
-    if _, err := os.Stat(fileName); os.IsNotExist(err) {
-        exist = false; 
-    }
-    return exist;
-}
-
-func CreateFile(fileName string) {
-    fp, err := os.Create(fileName)
-    if err != nil {
-        panic(err)
-    }
-    defer fp.Close()
-}
-
-func RecordInfo(fileName string ,record string) {
-
-//有则追加
-    fmt.Printf("\n*************True****************\n")
-    fp, err := os.OpenFile(fileName, os.O_APPEND, 0666)
-    if err != nil {
-        panic(err)
-    }
-    defer fp.Close()
-
-    n, writeErr := io.WriteString(fp, record)
-    if writeErr != nil {
-        panic (writeErr)
-    }
-    defer fp.Close()
-    fmt.Printf("本次输入 **%d** 个字节,%s", n,record)
-
-    fp.Close()
-}
-
-func MyGetFunction(getUrl string ,)([]byte){
-    u, _ := url.Parse(getUrl)
-    q := u.Query()
-    u.RawQuery = q.Encode()
-    res, err := http.Get(u.String());
-    if err != nil { 
-        return nil
-    }
-    result, err := ioutil.ReadAll(res.Body) 
-    res.Body.Close() 
-    if err != nil { 
-        return nil
-    } 
-
-    return result
-}
 
 func GetSearchResult(keyword string ,city string ,jobsCount int){
 
@@ -100,7 +45,7 @@ func GetSearchResult(keyword string ,city string ,jobsCount int){
 
     for i := 1 ;i <=pagesCount ; i++{
         time.Sleep(1*time.Second)
-        result := MyGetFunction(paramurl + paramPage + strconv.Itoa(i) + paramCity + paramKey)
+        result := crawlerlib.MyGetFunction(paramurl + paramPage + strconv.Itoa(i) + paramCity + paramKey)
         //fmt.Printf("%s", result)
         js, err := simplejson.NewJson(result)
         if err != nil {
@@ -122,35 +67,24 @@ func GetSearchResult(keyword string ,city string ,jobsCount int){
             jobCreatTime ,_ := jobJson.Get("createTime").Bytes()
             jobsalary ,_ := jobJson.Get("salary").Bytes()
             jobCompany ,_ := jobJson.Get("companyName").Bytes()
+            jobID ,_ := jobJson.Get("positionId").Int()
+
+//            fmt.Println(strconv.Itoa(jobID))
+//            break
+            
+//获取job 详情
+            jobURL := "http://www.lagou.com/center/job_" + strconv.Itoa(jobID) + ".html?m=1"
+            fmt.Println(jobURL)
+            jobDetail := crawlerlib.GetQuery(jobURL)
 
 //开始写文件
-            s := []string{string(jobName),string(jobCity),string(jobCreatTime),string(jobsalary),string(jobCompany)}
-            RecordInfo(fileName,strings.Join(s, "\t"))
-            RecordInfo(fileName,"\n")
+            s := []string{string(jobName),string(jobID),string(jobCity),string(jobCreatTime),string(jobsalary),string(jobCompany),string(jobDetail)}
+            crawlerlib.RecordInfo(fileName,strings.Join(s, "\t"))
+            crawlerlib.RecordInfo(fileName,"\n")
 //            fmt.Printf("%s\t%s\t%s\t%s\t%s\n",jobName,jobCity,jobCreatTime,jobsalary,jobCompany)
         }
 
     }
-}
-
-func GetPageNumber(keyword string ,city string ) (int){
-    fmt.Printf("\n***************\n我想知道一共有多少\n")
-    paramurl := "http://www.lagou.com/custom/search.json?"
-    paramKey := "&positionName=" + keyword
-    paramCity := "&city=" + city
-    paramPage := "pageNo="
-
-    result := MyGetFunction(paramurl + paramPage + strconv.Itoa(1) + paramCity + paramKey)
-    
-    js, err := simplejson.NewJson(result)
-    if err != nil {
-        panic(err.Error())
-    }
-//取长度，并且取出内容
-    pageCount,_ := js.Get("content").Get("data").Get("page").Get("totalCount").Int()
-
-    return pageCount
-
 }
 
 func main() {
@@ -169,7 +103,7 @@ func main() {
         }
         fmt.Printf("您需要总共%d,条职位信息。\n",jobNums)
     }else{
-        jobNums = GetPageNumber(jobName , workCity)
+        jobNums = crawlerlib.GetPageNumber(jobName , workCity)
         fmt.Printf("尚未输入总数，将获取全部%n个职位信息\n",jobNums)
     }
 
@@ -177,7 +111,8 @@ func main() {
     strTime := time.Now().Format("2006-01-02")
     fileName := jobName +  strTime + ".csv"
     //fmt.Printf("fileName:%s", fileName)
-    CreateFile(fileName)
+    crawlerlib.CreateFile(fileName)
 
     GetSearchResult(jobName , workCity ,jobNums)
+
 }
