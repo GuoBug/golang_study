@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	m := map[int]string{3: "Love", 1: "Guo", 2: "Qiang", 4: "TT"}
+	m := map[int]string{3: "do", 1: "Guo", 2: "Qiang", 4: "work"}
 	s := make([]int, len(m))
 	i := 0
 	for k, _ := range m {
